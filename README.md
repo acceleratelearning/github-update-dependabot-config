@@ -2,6 +2,8 @@
 Holds the PowerShell and bash scripts to update a repository's dependabot.yml file
 Interval and target branch can be altered in the scripts.
 
+Run the script from the git repository top level directory.
+
 Example usage for powershell script:
 ```
 ./update-dependabot.ps1 -targetBranch dev -outputFile ./.github/dependabot.yml
