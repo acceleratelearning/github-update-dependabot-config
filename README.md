@@ -4,13 +4,13 @@ Interval and target branch can be altered in the scripts.
 
 Save a copy and run the script from the git repository's top level directory.
 
-Example usage for powershell script:
+## Example usage for powershell script:
 ```
 ./update-dependabot.ps1 -targetBranch dev -outputFile ./.github/dependabot.yml
 ```
 target branch defaults to dev. Output file must be specified. In order to edit interval, you must edit the script or dependabot.yml ouptut file directly.
 
-Example usage for bash script:
+## Example usage for bash script:
 ```
 ./update-dependabot.sh
 ```
