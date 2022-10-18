@@ -17,3 +17,5 @@ Example usage for bash script:
 Automatically saves to .github/dependabot.yml. In order to edit target branch and interval, you must edit the script or dependabot.yml ouptut directly.
 
 Additionally, make sure dependabot alerts are enabled. You can enable these in **Security** >>> **Dependabot Alerts** >> **Enable Dependabot alerts**.
+
+Please note that if you change the directory level of your projects config files, you will need to update the path of the config directories in dependabot.yml.
