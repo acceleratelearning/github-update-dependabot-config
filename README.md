@@ -15,3 +15,5 @@ Example usage for bash script:
 ./update-dependabot.sh
 ```
 Automatically saves to .github/dependabot.yml. In order to edit target branch and interval, you must edit the script or dependabot.yml ouptut directly.
+
+Additionally, make sure dependabot alerts are enabled. You can enable these in **Security** >>> **Dependabot Alerts** >> **Enable Dependabot alerts**.
