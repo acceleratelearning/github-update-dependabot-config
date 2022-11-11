@@ -45,8 +45,6 @@ walk_dir () {
             walk_dir "$pathname" "$base_dir"
         # npm
         elif [[ $b == "package.json" ]]; then
-            echo $rel_path
-            echo $(dirname $rel_path)
             insert_updates $(dirname $rel_path) "npm"
             printf '\t%s\n' "allow:" >> ./.github/dependabot.yml
             printf '\t%s\n' "- dependency-type: direct" >> ./.github/dependabot.yml
