@@ -49,7 +49,7 @@ walk_dir () {
             printf '\t%s\n' "allow:" >> ./.github/dependabot.yml
             printf '\t%s\n' "- dependency-type: direct" >> ./.github/dependabot.yml
             printf '\t%s\n' "- dependency-type: production" >> ./.github/dependabot.yml
-            insert_registries "npm" "registry" "https\:\/\/registry.npmjs.org"
+            npm_reg_flag=true
         # docker
         elif [[ $b == "Dockerfile" ]]; then
             insert_updates $(dirname $rel_path) "docker"
@@ -59,7 +59,7 @@ walk_dir () {
         # composer
         elif [[ $b == "composer.json" ]]; then
             insert_updates $(dirname $rel_path) "composer"
-            insert_registries "composer" "repository" "https\:\/\/satis.acceleratelearning.com"
+            composer_reg_flag=true
         # bundler
         elif [[ $b == "Gemfile" ]]; then
             insert_updates $(dirname $rel_path) "bundler"
@@ -71,16 +71,26 @@ walk_dir () {
         fi
     done
 }
+composer_reg_flag=false
+npm_reg_flag=false
+
 mkdir .github
 touch $PWD/.github/dependabot.yml
 printf '%s\n' "version: 2" > ./.github/dependabot.yml
 printf '%s\n' "updates:" >> ./.github/dependabot.yml
 insert_updates "/" "github-actions"
-
 chmod 755 $PWD/.github/dependabot.yml
    
 BASE_DIR=$(basename $PWD)
 echo "Base directory is: $BASE_DIR"
 DOWNLOADING_DIR=$PWD
 
-walk_dir "$DOWNLOADING_DIR" "$DOWNLOADING_DIR"
+walk_dir "$DOWNLOADING_DIR" "$BASE_DIR"
+
+if [[ $composer_reg_flag == true ]]; then
+    insert_registries "composer" "repository" "https\:\/\/repo.packagist.org"
+elif [[ $npm_reg_flag == true ]]; then
+    insert_registries "npm" "registry" "https\:\/\/registry.npmjs.org"
+else 
+    true
+fi
