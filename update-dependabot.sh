@@ -7,9 +7,9 @@ insert_registries(){
     username=$5
     payload=''
     # payload for token based authentication
-    payload_token="\\n  $dep\:\\n    type\: $type\\n    url\: $url\\n    token\: $token"
+    payload_token="\\n  $dep\:\\n    type\: $type\\n    url\: $url\\n    token\: $password_or_token"
     # payload for username/password based authentication
-    payload_u_p="\\n  $dep\:\\n    type\: $type\\n    url\: $url\\n    username\: $docker_username\\n    password\: $docker_password"
+    payload_u_p="\\n  $dep\:\\n    type\: $type\\n    url\: $url\\n    username\: $username\\n    password\: $password_or_token"
     if [[ $dep == "npm" ]]; then
         payload=$payload_token
     elif [[ $dep == "composer" || $dep == "ali-gitlab" || $dep == "aristek-gitlab" || $type == "docker-registry" ]]; then
@@ -57,6 +57,8 @@ walk_dir () {
         # docker
         elif [[ $b == "Dockerfile" ]]; then
             insert_updates $(dirname $rel_path) "docker"
+            printf '    %s\n' "registries: " >> ./.github/dependabot.yml
+            printf '    %s\n' "  - ecr-docker" >> ./.github/dependabot.yml
             docker_reg_flag=true
         # nuget
         elif [[ $b =~ \.sln$ ]]; then
