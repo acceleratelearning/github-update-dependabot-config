@@ -1,26 +1,25 @@
 #!/bin/bash
 insert_registries(){
-    v="version: 2"
-    r="registries:"
     dep=$1
     type=$2
     url=$3
+    password_or_token=$4
+    username=$5
     payload=''
-    token='${{secrets.NPM_TOKEN}}'
-    username='any'
-    password='${{secrets.GITLAB_ACCELERATELEARNING_TOKEN}}'
-    payload_npm="registries\:\\n  npm-npmjs\:\\n    type\: $dep\-$type\\n    url\: $url\\n    token\: $token"
-    payload_composer="registries\:\\n  composer\:\\n    type\: $dep-$type\\n    url\: $url\\n    username\: $username\\n    password\: $password"
-    payload_docker="registries\:\\n  ecr-docker\:\\n    type\: $dep-$type\\n    url\: $url\\n    username\: $username\\n    password\: $password"
+    # payload for token based authentication
+    payload_token="\\n  $dep\:\\n    type\: $type\\n    url\: $url\\n    token\: $password_or_token"
+    # payload for username/password based authentication
+    payload_u_p="\\n  $dep\:\\n    type\: $type\\n    url\: $url\\n    username\: $username\\n    password\: $password_or_token"
     if [[ $dep == "npm" ]]; then
-        payload=$payload_npm
-    elif [[ $dep == "composer" ]]; then
-        payload=$payload_composer
-    elif [[ $type == "docker" ]]
-        payload=$payload_docker
+        payload=$payload_token
+    elif [[ $dep == "composer" || $dep == "ali-gitlab" || $dep == "aristek-gitlab" || $type == "docker-registry" ]]; then
+        payload=$payload_u_p
     fi
-    # use the sed command to replace the line under "version: 2" with the payload
-    sed -i "s/version: 2/$v\\n$payload/g" .github/dependabot.yml
+    # payload="registries\:\\n  test\:\\n    type\: test\\n    url\: test\\n    username\: test\\n    password\: test"
+    # use the sed command to replace the line under the first occurence of "registries: " with the payload
+    sed -i "0,/^registries\: /s//registries\: $payload/" .github/dependabot.yml
+    # sed -i "/registries\: /a $payload" .github/dependabot.yml
+    # sed -i "s/registries\:/registries\:\\n$payload/n1" .github/dependabot.yml  
 }
 insert_updates(){
     pe="- package-ecosystem:"
@@ -69,6 +68,8 @@ walk_dir () {
             insert_updates $(dirname $rel_path) "composer"
             printf '    %s\n' "registries: " >> ./.github/dependabot.yml
             printf '    %s\n' "  - composer" >> ./.github/dependabot.yml
+            printf '    %s\n' "  - aristek-gitlab" >> ./.github/dependabot.yml
+            printf '    %s\n' "  - ali-gitlab" >> ./.github/dependabot.yml
             composer_reg_flag=true
         # bundler
         elif [[ $b == "Gemfile" ]]; then
@@ -97,13 +98,19 @@ echo "Base directory is: $BASE_DIR"
 DOWNLOADING_DIR=$PWD
 
 walk_dir "$DOWNLOADING_DIR" "$BASE_DIR"
-
+if [[ $composer_reg_flag || $npm_reg_flag || $docker_reg_flag ]]; then
+    payload="registries: "
+    sed -i "s/version: 2/version: 2\\n$payload/g" .github/dependabot.yml 
+fi
 if [[ $composer_reg_flag == true ]]; then
-    insert_registries "composer" "repository" "https\:\/\/satis.acceleratelearning.com"
+    insert_registries "composer" "composer-repository" "https\:\/\/satis.acceleratelearning.com" "\${{secrets.GITLAB_ACCELERATELEARNING_TOKEN}}" "any"
+    insert_registries "ali-gitlab" "git" "https\:\/\/gitlab.acceleratelearning.com\/acceleratelearning" "\${{secrets.GITLAB_ACCELERATELEARNING_TOKEN}}" "ali-gitlab"
+    insert_registries "aristek-gitlab" "git" "https\:\/\/git.aristeksystems.com\/acceleratelearning" "\${{secrets.GIT_ARISTEKSYSTEMS_TOKEN}}" "aristek-gitlab"
 fi
 if [[ $npm_reg_flag == true ]]; then
-    insert_registries "npm" "registry" "https\:\/\/registry.npmjs.org"
+    insert_registries "npm-npmjs" "npm-registry" "https\:\/\/registry.npmjs.org" "\${{secrets.NPM_TOKEN}}"
 fi
 if [[ $docker_reg_flag == true ]]; then
-    insert_registries "ecr" "docker" "https\:\/\/669462986110.dkr.ecr.us-east-2.amazonaws.com"
+    echo "in docker reg flag"
+    insert_registries "ecr-docker" "docker-registry" "https\:\/\/669462986110.dkr.ecr.us-east-2.amazonaws.com" "\${{secrets.DOCKER_ECR_REGISTRY_PASSWORD}}" "\${{secrets.DOCKER_ECR_REGISTRY_USERNAME}}"
 fi
