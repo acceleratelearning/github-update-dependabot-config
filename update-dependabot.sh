@@ -10,7 +10,7 @@ insert_registries(){
     payload_token="\\n  $dep\:\\n    type\: $type\\n    url\: $url\\n    token\: $password_or_token"
     # payload for username/password based authentication
     payload_u_p="\\n  $dep\:\\n    type\: $type\\n    url\: $url\\n    username\: $username\\n    password\: $password_or_token"
-    if [[ $dep == "npm" ]]; then
+    if [[ $dep == "npm-npmjs" ]]; then
         payload=$payload_token
     elif [[ $dep == "composer" || $dep == "ali-gitlab" || $dep == "aristek-gitlab" || $type == "docker-registry" ]]; then
         payload=$payload_u_p
