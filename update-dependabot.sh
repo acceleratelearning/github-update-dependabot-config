@@ -53,13 +53,13 @@ walk_dir () {
             printf '    %s\n' "- dependency-type: production" >> ./.github/dependabot.yml
             printf '    %s\n' "registries: " >> ./.github/dependabot.yml
             printf '    %s\n' "  - npm-npmjs" >> ./.github/dependabot.yml
-            npm_reg_flag=true
+            npm_reg_flag=1
         # docker
         elif [[ $b == "Dockerfile" ]]; then
             insert_updates $(dirname $rel_path) "docker"
             printf '    %s\n' "registries: " >> ./.github/dependabot.yml
             printf '    %s\n' "  - ecr-docker" >> ./.github/dependabot.yml
-            docker_reg_flag=true
+            docker_reg_flag=1
         # nuget
         elif [[ $b =~ \.sln$ ]]; then
             insert_updates $(dirname $rel_path) "nuget"
@@ -70,7 +70,7 @@ walk_dir () {
             printf '    %s\n' "  - composer" >> ./.github/dependabot.yml
             printf '    %s\n' "  - aristek-gitlab" >> ./.github/dependabot.yml
             printf '    %s\n' "  - ali-gitlab" >> ./.github/dependabot.yml
-            composer_reg_flag=true
+            composer_reg_flag=1
         # bundler
         elif [[ $b == "Gemfile" ]]; then
             insert_updates $(dirname $rel_path) "bundler"
@@ -82,9 +82,9 @@ walk_dir () {
         fi
     done
 }
-composer_reg_flag=false
-npm_reg_flag=false
-docker_reg_flag=false
+composer_reg_flag=0
+npm_reg_flag=0
+docker_reg_flag=0
 
 mkdir .github
 touch $PWD/.github/dependabot.yml
@@ -98,7 +98,8 @@ echo "Base directory is: $BASE_DIR"
 DOWNLOADING_DIR=$PWD
 
 walk_dir "$DOWNLOADING_DIR" "$BASE_DIR"
-if [[ $composer_reg_flag || $npm_reg_flag || $docker_reg_flag ]]; then
+if [[ $composer_reg_flag -eq 1 || $npm_reg_flag -eq 1 || $docker_reg_flag -eq 1 ]]; then
+    echo "evaluated to true"
     payload="registries: "
     sed -i "s/version: 2/version: 2\\n$payload/g" .github/dependabot.yml 
 fi
