@@ -12,7 +12,6 @@ insert_registries(){
     payload_u_p="\\n  $dep\:\\n    type\: $type\\n    url\: $url\\n    username\: $username\\n    password\: $password_or_token"
     if [[ $dep == "npm-npmjs" ]]; then
         payload=$payload_token
-        echo "payload is: $payload"
     elif [[ $dep == "composer" || $dep == "ali-gitlab" || $dep == "aristek-gitlab" || $type == "docker-registry" ]]; then
         payload=$payload_u_p
     fi
@@ -101,7 +100,6 @@ DOWNLOADING_DIR=$PWD
 
 walk_dir "$DOWNLOADING_DIR" "$BASE_DIR"
 if [[ $composer_reg_flag -eq 1 || $npm_reg_flag -eq 1 || $docker_reg_flag -eq 1 ]]; then
-    echo "evaluated to true"
     payload="registries: "
     sed -i "s/version: 2/version: 2\\n$payload/g" .github/dependabot.yml 
 fi
