@@ -12,11 +12,13 @@ insert_registries(){
     payload_u_p="\\n  $dep\:\\n    type\: $type\\n    url\: $url\\n    username\: $username\\n    password\: $password_or_token"
     if [[ $dep == "npm-npmjs" ]]; then
         payload=$payload_token
+        echo "payload is: $payload"
     elif [[ $dep == "composer" || $dep == "ali-gitlab" || $dep == "aristek-gitlab" || $type == "docker-registry" ]]; then
         payload=$payload_u_p
     fi
     # payload="registries\:\\n  test\:\\n    type\: test\\n    url\: test\\n    username\: test\\n    password\: test"
     # use the sed command to replace the line under the first occurence of "registries: " with the payload
+
     sed -i "0,/^registries\: /s//registries\: $payload/" .github/dependabot.yml
     # sed -i "/registries\: /a $payload" .github/dependabot.yml
     # sed -i "s/registries\:/registries\:\\n$payload/n1" .github/dependabot.yml  
@@ -103,15 +105,15 @@ if [[ $composer_reg_flag -eq 1 || $npm_reg_flag -eq 1 || $docker_reg_flag -eq 1 
     payload="registries: "
     sed -i "s/version: 2/version: 2\\n$payload/g" .github/dependabot.yml 
 fi
-if [[ $composer_reg_flag == true ]]; then
+if [[ $composer_reg_flag == 1 ]]; then
     insert_registries "composer" "composer-repository" "https\:\/\/satis.acceleratelearning.com" "\${{secrets.GITLAB_ACCELERATELEARNING_TOKEN}}" "any"
     insert_registries "ali-gitlab" "git" "https\:\/\/gitlab.acceleratelearning.com\/acceleratelearning" "\${{secrets.GITLAB_ACCELERATELEARNING_TOKEN}}" "ali-gitlab"
     insert_registries "aristek-gitlab" "git" "https\:\/\/git.aristeksystems.com\/acceleratelearning" "\${{secrets.GIT_ARISTEKSYSTEMS_TOKEN}}" "aristek-gitlab"
 fi
-if [[ $npm_reg_flag == true ]]; then
+if [[ $npm_reg_flag == 1 ]]; then
     insert_registries "npm-npmjs" "npm-registry" "https\:\/\/registry.npmjs.org" "\${{secrets.NPM_TOKEN}}"
 fi
-if [[ $docker_reg_flag == true ]]; then
+if [[ $docker_reg_flag == 1 ]]; then
     echo "in docker reg flag"
     insert_registries "ecr-docker" "docker-registry" "https\:\/\/669462986110.dkr.ecr.us-east-2.amazonaws.com" "\${{secrets.DOCKER_ECR_REGISTRY_PASSWORD}}" "\${{secrets.DOCKER_ECR_REGISTRY_USERNAME}}"
 fi
